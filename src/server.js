@@ -1,9 +1,13 @@
 import {dbConnection} from "./config/database.js";
 import dotenv from "dotenv";
-import app from "express/lib/application.js";
+import express from "express";
 import {syncModels} from "./model/index.js";
+import bookRouter from "./routes/book.routes.js";
 
 dotenv.config();
+const app = express();
+app.use(express.json());
+app.use(bookRouter)
 
 const startServer = async () => {
     await dbConnection();
