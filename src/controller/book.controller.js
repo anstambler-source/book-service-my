@@ -63,3 +63,41 @@ export const findBookByIsbn = async (req, res) => {
     }
     return res.status(404).send({error: `Book with ISBN ${req.params.isbn} not found`});
 }
+
+export const removeBook = async (req, res) => {
+    const t = await sequelize.transaction({readOnly: true});
+    try{
+        const book = await Book.findByPk(req.params.isbn,
+            {
+                include: [
+                    {
+                        model: Author,
+                        as: 'authors',
+                        attributes: {
+                            include: ['name', [sequelize.col('birth_date'), 'birthDate']],
+                            exclude: ['birth_date']
+                        },
+                        through: {
+                            attributes: []
+                        }
+                    }
+                ],
+                transaction: t
+            });
+        if (book) {
+            await book.destroy({transaction: t});
+            await t.commit()
+            return res.json(book);
+        }else {
+            await t.rollback();
+            return res.status(404).send({error: `Book with ISBN ${req.params.isbn} not found`});
+        }
+    }catch(e) {
+        await t.rollback();
+        console.log(`Error remove book:`, e);
+        return res.status(500).send({
+            error: e.message,
+            message: 'Failed to remove book'
+        })
+    }
+}
