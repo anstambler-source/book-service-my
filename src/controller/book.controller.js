@@ -43,18 +43,23 @@ export const addBook = async (req, res) => {
 }
 
 export const findBookByIsbn = async (req, res) => {
-    const book = await Book.findByPk(req.params.isbn);
+    const book = await Book.findByPk(req.params.isbn, {
+        include: [
+            {
+                model: Author,
+                as: 'authors',
+                attributes: {
+                    include: ['name', [sequelize.col('birth_date'), 'birthDate']],
+                    exclude: ['birth_date']
+                },
+                through: {
+                    attributes: []
+                }
+            }
+        ]
+    });
     if (book) {
-        const result = {
-            isbn: book.isbn,
-            title: book.title,
-            publisher: book.publisher,
-            authors: (await book.getAuthors()).map(a => ({
-                name: a.name,
-                birthDate: a.birth_date
-            }))
-        }
-        return res.json(result);
+        return res.json(book);
     }
     return res.status(404).send({error: `Book with ISBN ${req.params.isbn} not found`});
 }
