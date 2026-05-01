@@ -3,11 +3,15 @@ import dotenv from "dotenv";
 import express from "express";
 import {syncModels} from "./model/index.js";
 import bookRouter from "./routes/book.routes.js";
+import authorRoutes from "./routes/author.routes.js";
+import publisherRoutes from "./routes/publisher.routes.js";
 
 dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(bookRouter)
+app.use(authorRoutes)
+app.use(publisherRoutes)
 
 const startServer = async () => {
     await dbConnection();
