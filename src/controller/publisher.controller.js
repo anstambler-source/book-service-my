@@ -9,18 +9,31 @@ export const findPublishersByAuthor = async (req, res) => {
     // const publishers = [...new Set(books.map(book => book.publisher))]
     // return res.json(publishers)
 
-    const books = await Book.findAll({
+    // const books = await Book.findAll({
+    //     include: {
+    //         model: Author,
+    //         as: 'authors',
+    //         where: {name: req.params.name},
+    //         through: {
+    //             attributes: []
+    //         }
+    //     },
+    //     attributes: ['publisher'],
+    //     raw: true,
+    //     group: ['publisher']
+    // })
+    // return res.json(books.map(book => book.publisher));
+
+    const publishers = await Book.aggregate('publisher', 'DISTINCT',{
+        plain: false,
         include: {
             model: Author,
             as: 'authors',
             where: {name: req.params.name},
             through: {
-                attributes: []
+                attributes: [],
             }
-        },
-        attributes: ['publisher'],
-        raw: true,
-        group: ['publisher']
+        }
     })
-    return res.json(books.map(book => book.publisher));
+    return res.json(publishers.map(p => p.DISTINCT));
 }
