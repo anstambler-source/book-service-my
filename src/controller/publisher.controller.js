@@ -5,10 +5,12 @@ export const findPublishersByAuthor = async (req, res) => {
     if (!author) {
         return res.status(404).send({error: `Author ${req.params.name} not found`});
     }
+    // 1
     // const books = await author.getBooks()
     // const publishers = [...new Set(books.map(book => book.publisher))]
     // return res.json(publishers)
 
+    //2
     // const books = await Book.findAll({
     //     include: {
     //         model: Author,
@@ -24,6 +26,7 @@ export const findPublishersByAuthor = async (req, res) => {
     // })
     // return res.json(books.map(book => book.publisher));
 
+    // 3
     const publishers = await Book.aggregate('publisher', 'DISTINCT',{
         plain: false,
         include: {
